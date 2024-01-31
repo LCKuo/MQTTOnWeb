@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MQTT Sender</title>
+</head>
+
+<body>
+    <button onclick="sendMessage('A')">傳送 A</button>
+    <button onclick="sendMessage('B')">傳送 B</button>
+
+    <div id="mqtt_monitor"></div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mqtt/4.0.0/mqtt.min.js"></script>
+    <script>
+        const brokerUrl = 'ws://127.0.0.1'; // 更改連接方式為 ws
+        const port = 8080; // MQTT 通常使用的是 1883 端口
+        const topicToPublish = "/DCS/IOT/ARM1440/rec/r";
+        const topicToSubscribe = "/DCS/IOT/ARM1440/Axis2/Rotate";
+
+        const client = mqtt.connect(brokerUrl, { port: port });
+
+        // 連接到 MQTT broker
+        client.on('connect', function () {
+            console.log('Connected to MQTT broker');
+            // 訂閱指定主題
+            client.subscribe(topicToSubscribe);
+        });
+
+        // 當發生錯誤時呼叫的回調函數
+        client.on('error', function (error) {
+            console.error('MQTT error:', error);
+        });
+
+        // 當接收到消息時呼叫的回調函數
+        client.on('message', function (topic, message) {
+            console.log('Received message:', message.toString());
+            // 將接收到的消息顯示在網頁上
+            document.getElementById("mqtt_monitor").innerHTML = message.toString();
+        });
+
+        // 傳送消息的函數
+        function sendMessage(message) {
+            client.publish(topicToPublish, message, { qos: 0, retain: true }, function (err) {
+                if (err) {
+                    console.error('Failed to send message:', err);
+                } else {
+                    console.log('Sent message:', message);
+                }
+            });
+        }
+    </script>
+</body>
+
+</html>
