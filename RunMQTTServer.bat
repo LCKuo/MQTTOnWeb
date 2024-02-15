@@ -1,1 +1,2 @@
-mosquitto -c "D:\Interact\Project\CHTTI\MQTT\webDeno\mosquitto.conf"
+cd /d "%~dp0"
+mosquitto -c mosquitto.conf
